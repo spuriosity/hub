@@ -1,0 +1,6 @@
+git init
+git remote add origin https://github.com/jlysaght/hub.git
+git remote set-url origin git@github.com-jlysaght:jlysaght/hub.git
+git add .
+git commit -m "Iniitial Version"
+git push -u origin master
