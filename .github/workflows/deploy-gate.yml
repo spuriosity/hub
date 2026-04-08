@@ -1,0 +1,48 @@
+name: Deploy gate
+
+on:
+  push:
+    branches: [master]
+    paths: [gate/**]
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}/gate
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: gate
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+
+      - name: Deploy to server
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh -o StrictHostKeyChecking=accept-new -i ~/.ssh/deploy_key \
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "docker pull ${{ env.IMAGE }}:latest && \
+             docker stop gate || true && \
+             docker rm gate || true && \
+             docker run -d --name gate --restart unless-stopped \
+               -p 127.0.0.1:8090:8090 \
+               -v /etc/gate/config.yaml:/etc/gate/config.yaml:ro \
+               ${{ env.IMAGE }}:latest"

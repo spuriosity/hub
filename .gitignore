@@ -8,3 +8,4 @@ __pycache__
 Dockerfile-local
 .python-version
 .coverage
+gate/config.yaml

@@ -1,0 +1,32 @@
+# Gate auth configuration
+# Copy to config.yaml and fill in real values.
+
+# Used to sign session cookies. Generate with: python -c "import secrets; print(secrets.token_hex(32))"
+secret_key: "CHANGE_ME"
+
+# Session lifetime in seconds (default: 7 days)
+session_max_age: 604800
+
+# Telegram bot for approval flow (optional — omit to disable)
+telegram:
+  bot_token: "123456:ABC-DEF..."       # from @BotFather
+  admin_chat_id: 123456789             # your Telegram user ID (get via /getUpdates on your bot)
+
+# Each project gets its own allowlist and settings.
+# The project key matches the ?project= param in the Caddy forward_auth URI.
+#
+# Trust model: entering an email is identification, not authentication.
+# Allowlisted users are trusted by virtue of having the link.
+# Non-allowlisted users go through Telegram approval.
+# For stronger guarantees, add email verification (not implemented yet).
+projects:
+  ov:
+    allowlist:
+      - "jack@spuriosity.io"
+      - "friend@example.com"
+    telegram_approval: true
+
+  elax:
+    allowlist:
+      - "jack@spuriosity.io"
+    telegram_approval: false

@@ -1,0 +1,8 @@
+secret_key: "test-secret-key-not-for-production"
+session_max_age: 3600
+
+projects:
+  testproj:
+    allowlist:
+      - "allowed@example.com"
+    telegram_approval: false

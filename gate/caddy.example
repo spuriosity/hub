@@ -1,0 +1,22 @@
+# Example Caddy config for a gate-protected site.
+# Add the auth_pages handle BEFORE the forward_auth + backend handle.
+# Repeat this pattern for each protected project.
+
+ov.spuriosity.io {
+    import security_headers
+
+    # Auth gate pages (login, waiting, status polling) — served directly
+    @auth_pages path /auth/*
+    handle @auth_pages {
+        reverse_proxy localhost:8090
+    }
+
+    # Everything else — check session first, then proxy to backend
+    handle {
+        forward_auth localhost:8090 {
+            uri /auth/check?project=ov
+            copy_headers X-Auth-User
+        }
+        reverse_proxy localhost:8080
+    }
+}

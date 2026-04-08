@@ -1,0 +1,6 @@
+tests/
+config.yaml
+.venv/
+.pytest_cache/
+__pycache__/
+*.pyc

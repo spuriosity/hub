@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Waiting for approval — {{ project }}{% endblock %}
+{% block content %}
+  <h1>{{ project }}</h1>
+  <p class="subtitle">Your request has been sent for approval</p>
+  <div class="status" id="status">
+    <span class="spinner"></span> Waiting for approval...
+  </div>
+{% endblock %}
+{% block scripts %}
+<script>
+  const requestId = "{{ request_id }}";
+  const interval = setInterval(async () => {
+    try {
+      const resp = await fetch(`/auth/status/${requestId}`);
+      const data = await resp.json();
+      const el = document.getElementById("status");
+      if (data.status === "approved") {
+        clearInterval(interval);
+        el.innerHTML = "Approved — redirecting...";
+        window.location.href = `/auth/claim/${requestId}`;
+      } else if (data.status === "denied") {
+        clearInterval(interval);
+        el.innerHTML = "Access denied.";
+      } else if (data.status === "expired") {
+        clearInterval(interval);
+        el.innerHTML = "Request expired. <a href='javascript:history.back()' style='color:#888'>Try again</a>";
+      }
+    } catch (e) {}
+  }, 2000);
+</script>
+{% endblock %}
